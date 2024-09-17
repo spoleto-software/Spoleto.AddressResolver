@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net7.0;net8.0;netstandard2.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Spoleto.AddressResolver.Dadata</RootNamespace>
+    </PropertyGroup>
+
+    <!-- Package info -->
+    <PropertyGroup>
+        <Title>Spoleto address resolver via Dadata</Title>
+        <PackageId>Spoleto.AddressResolver.Dadata</PackageId>
+        <PackageTags>Spoleto; Address-Resolver; Address-Parser; Address-Validation; Dadata; Fias; Kladr</PackageTags>
+        <Description>Dadata address resolver for Spoleto.AddressReolver</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dadata" Version="23.6.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Spoleto.AddressResolver\Spoleto.AddressResolver.csproj" />
+    </ItemGroup>
+
+</Project>

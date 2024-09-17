@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spoleto.AddressResolver", "src\Spoleto.AddressResolver\Spoleto.AddressResolver.csproj", "{F4FC8062-31FD-4E4A-9282-DAE1EE6AA915}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spoleto.AddressResolver.Dadata", "src\Spoleto.AddressResolver.Dadata\Spoleto.AddressResolver.Dadata.csproj", "{E9C5F6F3-45A8-4C3A-AA14-87BBBC8D5E69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{54C3E8F0-5F4F-4FF6-8CA2-00B9D5A228A2}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\cd.yml = .github\workflows\cd.yml
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A45A5E7F-1D00-4AC7-98D5-B873BBF7875B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		src\Directory.Build.props = src\Directory.Build.props
+		LICENSE = LICENSE
+		publish-assets-to-github.sh = publish-assets-to-github.sh
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4FC8062-31FD-4E4A-9282-DAE1EE6AA915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4FC8062-31FD-4E4A-9282-DAE1EE6AA915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4FC8062-31FD-4E4A-9282-DAE1EE6AA915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4FC8062-31FD-4E4A-9282-DAE1EE6AA915}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9C5F6F3-45A8-4C3A-AA14-87BBBC8D5E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9C5F6F3-45A8-4C3A-AA14-87BBBC8D5E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9C5F6F3-45A8-4C3A-AA14-87BBBC8D5E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9C5F6F3-45A8-4C3A-AA14-87BBBC8D5E69}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {336EBDC7-DA0F-4988-A61F-384ABC484ECB}
+	EndGlobalSection
+EndGlobal

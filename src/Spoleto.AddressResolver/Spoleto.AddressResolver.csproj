@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net7.0;net8.0;netstandard2.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Spoleto.AddressResolver</RootNamespace>
+    </PropertyGroup>
+
+    <!-- Package info -->
+    <PropertyGroup>
+        <Title>Spoleto address resolvers to parse string address into separate fields (region, city, street, house, apartment, fias, kladr and postal codes)</Title>
+        <PackageId>Spoleto.AddressResolver</PackageId>
+        <PackageTags>Spoleto; Address-Resolver; Address-Parser; Address-Validation; Dadata; Fias; Kladr</PackageTags>
+        <Description>Address resolver and validator with different parsers such as Dadata</Description>
+    </PropertyGroup>
+
+</Project>
