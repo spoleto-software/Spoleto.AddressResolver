@@ -1,5 +1,6 @@
 ﻿using Dadata;
 using Dadata.Model;
+using Spoleto.Common.Helpers;
 
 namespace Spoleto.AddressResolver.Dadata
 {
@@ -23,7 +24,7 @@ namespace Spoleto.AddressResolver.Dadata
 
         /// <inheritdoc/>
         public AddressLocation ResolveLocation(string originalLocationAddress, string countryIsoCode = "RU")
-            => ResolveLocationAsync(originalLocationAddress, countryIsoCode).GetAwaiter().GetResult();
+            => AsyncHelper.RunSync(() => ResolveLocationAsync(originalLocationAddress, countryIsoCode));
 
         /// <inheritdoc/>
         public async Task<AddressLocation> ResolveLocationAsync(string originalLocationAddress, string countryIsoCode = "RU")
@@ -42,7 +43,7 @@ namespace Spoleto.AddressResolver.Dadata
 
         /// <inheritdoc/>
         public List<AddressLocation> SuggestLocations(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU")
-            => SuggestLocationsAsync(searchAddressLocation, resultCount, countryIsoCode).GetAwaiter().GetResult();
+            => AsyncHelper.RunSync(() => SuggestLocationsAsync(searchAddressLocation, resultCount, countryIsoCode));
 
         /// <inheritdoc/>
         public async Task<List<AddressLocation>> SuggestLocationsAsync(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU")
