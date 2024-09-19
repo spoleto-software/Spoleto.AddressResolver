@@ -7,7 +7,8 @@ namespace Spoleto.AddressResolver.Dadata
     public class DadataAddressResolver : IAddressResolver
     {
         private readonly DadataOptions _options;
-        private readonly SuggestClientAsync _dadataClient;
+        private readonly CleanClientAsync _cleanDadataClient;
+        private readonly SuggestClientAsync _suggestDadataClient;
 
         public DadataAddressResolver(DadataOptions options)
         {
@@ -19,7 +20,8 @@ namespace Spoleto.AddressResolver.Dadata
 
             _options = options;
 
-            _dadataClient = new SuggestClientAsync(_options.Token);
+            _cleanDadataClient = new CleanClientAsync(options.Token, options.Secret);
+            _suggestDadataClient = new SuggestClientAsync(_options.Token);
         }
 
         /// <inheritdoc/>
@@ -32,8 +34,9 @@ namespace Spoleto.AddressResolver.Dadata
             if (String.IsNullOrEmpty(originalLocationAddress))
                 throw new ArgumentNullException(nameof(originalLocationAddress));
 
-            var fullAddress = await GetFullAddressAsync(originalLocationAddress, countryIsoCode).ConfigureAwait(false);
-            if (fullAddress?.data is not Address dadataAddress)
+            var fullAddress = await _cleanDadataClient.Clean<Address>(originalLocationAddress).ConfigureAwait(false);
+
+            if (fullAddress is not Address dadataAddress)
                 throw new ArgumentException($"Could not find the full address for <{originalLocationAddress}>.", nameof(fullAddress));
 
             var location = ConvertToAddressLocation(originalLocationAddress, dadataAddress);
@@ -86,7 +89,7 @@ namespace Spoleto.AddressResolver.Dadata
 
             }
 
-            var response = await _dadataClient.SuggestAddress(request).ConfigureAwait(false);
+            var response = await _suggestDadataClient.SuggestAddress(request).ConfigureAwait(false);
 
             return response?.suggestions;
         }
