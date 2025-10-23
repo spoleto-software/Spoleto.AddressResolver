@@ -2,13 +2,13 @@
 {
     public class DadataAddressResolverTests
     {
-        private IAddressResolver _addressResolver;
+        private IBusinessDataResolver _businessDataResolver;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             var options = ConfigurationHelper.GetDadataOptions();
-            _addressResolver = new Dadata.DadataAddressResolver(options);
+            _businessDataResolver = new Dadata.DadataAddressResolver(options);
         }
 
         [Test]
@@ -18,7 +18,7 @@
             var address = "Иваново, Ленина, 5";
 
             // Act
-            var location = await _addressResolver.ResolveLocationAsync(address);
+            var location = await _businessDataResolver.ResolveLocationAsync(address);
 
             // Assert
             Assert.That(location, Is.Not.Null);
@@ -31,10 +31,63 @@
             var address = "Иваново, Ленина, 5";
 
             // Act
-            var locations = await _addressResolver.SuggestLocationsAsync(address);
+            var locations = await _businessDataResolver.SuggestLocationsAsync(address);
 
             // Assert
             Assert.That(locations, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetCitiesTest()
+        {
+            // Arrange
+            var address = "Иваново";
+
+            // Act
+            var locations = await _businessDataResolver.GetCitiesAsync(address, "RU", 5);
+
+            // Assert
+            Assert.That(locations, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetAddressByGeoCodeTest()
+        {
+            // Arrange
+            var lat = 62.0397;
+            var lon = 129.7422;
+
+            // Act
+            var locations = await _businessDataResolver.GetAddressByGeoCodeAsync(lat, lon);
+
+            // Assert
+            Assert.That(locations, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetCityByIpTest()
+        {
+            // Arrange
+            var ip = "83.220.236.105";
+
+            // Act
+            var city = await _businessDataResolver.GetCityByIpAsync(ip);
+
+            // Assert
+            Assert.That(city, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetFirmTest()
+        {
+            // Arrange
+            var inn = "7709359307";
+
+            // Act
+            var firm = await _businessDataResolver.GetFirmAsync(inn);
+
+            // Assert
+            Assert.That(firm, Is.Not.Null);
         }
     }
 }

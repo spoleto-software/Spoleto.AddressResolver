@@ -1,9 +1,22 @@
 ﻿namespace Spoleto.AddressResolver
 {
-    public record AddressLocation
+    /// <summary>
+    /// Детальная информация по адресу.
+    /// </summary>
+    public record AddressLocationData
     {
         /// <summary>Исходный адрес для запроса.</summary>
         public string OriginalAddress { get; set; }
+
+        /// <summary>
+        /// Адрес одной строкой как в ЕГРЮЛ
+        /// </summary>
+        public string Source { get; set; }
+
+        /// <summary>
+        /// Код проверки адреса
+        /// </summary>
+        public string Qc { get; set; }
 
         /// <summary>Индекс.</summary>
         public string PostalCode { get; set; }

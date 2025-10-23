@@ -4,7 +4,7 @@ using Spoleto.Common.Helpers;
 
 namespace Spoleto.AddressResolver.Dadata
 {
-    public class DadataAddressResolver : IAddressResolver
+    public class DadataAddressResolver : IBusinessDataResolver
     {
         private readonly DadataOptions _options;
         private readonly CleanClientAsync _cleanDadataClient;
@@ -25,11 +25,11 @@ namespace Spoleto.AddressResolver.Dadata
         }
 
         /// <inheritdoc/>
-        public AddressLocation ResolveLocation(string originalLocationAddress, string countryIsoCode = "RU")
+        public AddressLocationData ResolveLocation(string originalLocationAddress, string countryIsoCode = "RU")
             => AsyncHelper.RunSync(() => ResolveLocationAsync(originalLocationAddress, countryIsoCode));
 
         /// <inheritdoc/>
-        public async Task<AddressLocation> ResolveLocationAsync(string originalLocationAddress, string countryIsoCode = "RU")
+        public async Task<AddressLocationData> ResolveLocationAsync(string originalLocationAddress, string countryIsoCode = "RU")
         {
             if (String.IsNullOrEmpty(originalLocationAddress))
                 throw new ArgumentNullException(nameof(originalLocationAddress));
@@ -39,7 +39,7 @@ namespace Spoleto.AddressResolver.Dadata
             if (fullAddress is not Address dadataAddress)
                 throw new ArgumentException($"Could not find the full address for <{originalLocationAddress}>.", nameof(fullAddress));
 
-            var location = ConvertToAddressLocation(originalLocationAddress, dadataAddress);
+            var location = dadataAddress.ToAddressLocationData(originalLocationAddress);
 
             return location;
         }
@@ -53,7 +53,7 @@ namespace Spoleto.AddressResolver.Dadata
         {
             var addressList = await GetAddressAsync(searchAddressLocation, countryCode: countryIsoCode).ConfigureAwait(false);
 
-            return addressList.Where(x => x.data != null).Select(x => ConvertToAddressLocation(searchAddressLocation, x.data)).ToList();
+            return addressList.Where(x => x.data != null).Select(x => x.ToAddressLocation(searchAddressLocation)).ToList();
         }
 
         private async Task<IList<Suggestion<Address>>> GetAddressAsync(string searchText, string? boundCity = null, int resultCount = 5, string countryCode = "RU")
@@ -63,13 +63,13 @@ namespace Spoleto.AddressResolver.Dadata
             {
                 request = new SuggestAddressRequest(searchText, resultCount)
                 {
-                    locations = new Address[]
-                    {
+                    locations =
+                    [
                         new Address()
                         {
                             city = boundCity
                         }
-                    },
+                    ],
                     restrict_value = true
                 };
             }
@@ -77,13 +77,13 @@ namespace Spoleto.AddressResolver.Dadata
             {
                 request = new SuggestAddressRequest(searchText, resultCount)
                 {
-                    locations = new Address[]
-                    {
+                    locations =
+                    [
                         new Address()
                         {
                             country_iso_code = countryCode
                         }
-                    },
+                    ],
 
                 };
 
@@ -94,163 +94,105 @@ namespace Spoleto.AddressResolver.Dadata
             return response?.suggestions;
         }
 
-        private async Task<Suggestion<Address>> GetFullAddressAsync(string addressValue, string countryCode)
+        //private async Task<Suggestion<Address>> GetFullAddressAsync(string addressValue, string countryCode)
+        //{
+        //    var fullAddressList = await GetAddressAsync(addressValue, null, 1, countryCode).ConfigureAwait(false);
+
+        //    return fullAddressList.FirstOrDefault();
+        //}
+
+        /// <inheritdoc/>
+        public List<AddressLocation> GetCities(string searchText, string countryIsoCode, int resultCount)
+            => AsyncHelper.RunSync(() => GetCitiesAsync(searchText, countryIsoCode, resultCount));
+
+        /// <inheritdoc/>
+        public async Task<List<AddressLocation>> GetCitiesAsync(string searchText, string countryIsoCode, int resultCount)
         {
-            var fullAddressList = await GetAddressAsync(addressValue, null, 1, countryCode).ConfigureAwait(false);
-
-            return fullAddressList.FirstOrDefault();
-        }
-
-        private static AddressLocation ConvertToAddressLocation(string originalLocationAddress, Address dadataAddress)
-        {
-            if (dadataAddress == null)
-                return null;
-
-            return new AddressLocation
+            var request = new SuggestAddressRequest(searchText, resultCount)
             {
-                OriginalAddress = dadataAddress.source ?? originalLocationAddress,
-                PostalCode = dadataAddress.postal_code,
-                Country = dadataAddress.country,
-                CountryIsoCode = dadataAddress.country_iso_code,
-                FederalDistrict = dadataAddress.federal_district,
-                RegionFiasId = Guid.TryParse(dadataAddress.region_fias_id, out var rId) ? rId : null,
-                RegionKladrId = dadataAddress.region_kladr_id,
-                RegionIsoCode = dadataAddress.region_iso_code,
-                RegionWithType = dadataAddress.region_with_type,
-                RegionType = dadataAddress.region_type,
-                RegionTypeFull = dadataAddress.region_type_full,
-                Region = dadataAddress.region,
-                AreaFiasId = Guid.TryParse(dadataAddress.area_fias_id, out var aId) ? aId : null,
-                AreaKladrId = dadataAddress.area_kladr_id,
-                AreaWithType = dadataAddress.area_with_type,
-                AreaType = dadataAddress.area_type,
-                AreaTypeFull = dadataAddress.area_type_full,
-                Area = dadataAddress.area,
-                CityFiasId = Guid.Parse(dadataAddress.city_fias_id ?? dadataAddress.region_fias_id),
-                CityKladrId = dadataAddress.city_kladr_id,
-                CityWithType = dadataAddress.city_with_type,
-                CityType = dadataAddress.city_type,
-                CityTypeFull = dadataAddress.city_type_full,
-                City = dadataAddress.city,
-                StreetFiasId = Guid.TryParse(dadataAddress.street_fias_id, out var sId) ? sId : null,
-                StreetKladrId = dadataAddress.street_kladr_id,
-                StreetWithType = dadataAddress.street_with_type,
-                StreetType = dadataAddress.street_type,
-                StreetTypeFull = dadataAddress.street_type_full,
-                Street = dadataAddress.street,
-                House = dadataAddress.house,
-                Flat = dadataAddress.flat,
-                FiasId = Guid.TryParse(dadataAddress.fias_id, out var fId) ? fId : null,
-                FiasLevel = dadataAddress.fias_level,
-                KladrId = dadataAddress.kladr_id,
-                GeoLat = dadataAddress.geo_lat,
-                GeoLon = dadataAddress.geo_lon,
-                HistoryValues = dadataAddress.history_values,
-                BeltwayDistance = dadataAddress.beltway_distance,
-                BeltwayHit = dadataAddress.beltway_hit,
-                Block = dadataAddress.block,
-                BlockType = dadataAddress.block_type,
-                BlockTypeFull = dadataAddress.block_type_full,
-                CapitalMarker = dadataAddress.capital_marker,
-                CityArea = dadataAddress.city_area,
-                CityDistrict = dadataAddress.city_district,
-                CityDistrictFiasId = Guid.TryParse(dadataAddress.city_district_fias_id, out var cdId) ? cdId : null,
-                CityDistrictKladrId = dadataAddress.city_district_kladr_id,
-                CityDistrictType = dadataAddress.city_district_type,
-                CityDistrictTypeFull = dadataAddress.city_district_type_full,
-                CityDistrictWithType = dadataAddress.city_district_with_type,
-                Entrance = dadataAddress.entrance,
-                FiasActualityState = dadataAddress.fias_actuality_state,
-                FlatArea = dadataAddress.flat_area,
-                FlatCadnum = dadataAddress.flat_cadnum,
-                FlatFiasId = Guid.TryParse(dadataAddress.flat_fias_id, out var flId) ? flId : null,
-                FlatPrice = dadataAddress.flat_price,
-                FlatType = dadataAddress.flat_type,
-                FlatTypeFull = dadataAddress.flat_type_full,
-                Floor = dadataAddress.floor,
-                GeonameId = dadataAddress.geoname_id,
-                HouseCadnum = dadataAddress.house_cadnum,
-                HouseFiasId = Guid.TryParse(dadataAddress.house_fias_id, out var hId) ? hId : null,
-                HouseFlatCount = dadataAddress.house_flat_count,
-                HouseKladrId = dadataAddress.house_kladr_id,
-                HouseType = dadataAddress.house_type,
-                HouseTypeFull = dadataAddress.house_type_full,
-                Okato = dadataAddress.okato,
-                Oktmo = dadataAddress.oktmo,
-                PostalBox = dadataAddress.postal_box,
-                QcGeo = dadataAddress.qc_geo,
-                Room = dadataAddress.room,
-                RoomCadnum = dadataAddress.room_cadnum,
-                RoomFiasId = Guid.TryParse(dadataAddress.room_fias_id, out var roomId) ? roomId : null,
-                RoomType = dadataAddress.room_type,
-                RoomTypeFull = dadataAddress.room_type_full,
-                Settlement = dadataAddress.settlement,
-                SettlementFiasId = Guid.TryParse(dadataAddress.settlement_fias_id, out var setId) ? setId : null,
-                SettlementKladrId = dadataAddress.settlement_kladr_id,
-                SettlementType = dadataAddress.settlement_type,
-                SettlementTypeFull = dadataAddress.settlement_type_full,
-                SettlementWithType = dadataAddress.settlement_with_type,
-                SquareMeterPrice = dadataAddress.square_meter_price,
-                Stead = dadataAddress.stead,
-                //SteadCadnum=dadataAddress.stead_cadnum,
-                SteadFiasId = Guid.TryParse(dadataAddress.stead_fias_id, out var stId) ? stId : null,
-                SteadKladrId = dadataAddress.stead_kladr_id,
-                SteadType = dadataAddress.stead_type,
-                SteadTypeFull = dadataAddress.stead_type_full,
-                SubArea = dadataAddress.sub_area,
-                SubAreaFiasId = Guid.TryParse(dadataAddress.sub_area_fias_id, out var subId) ? subId : null,
-                SubAreaKladrId = dadataAddress.sub_area_kladr_id,
-                SubAreaType = dadataAddress.sub_area_type,
-                SubAreaTypeFull = dadataAddress.sub_area_type_full,
-                SubAreaWithType = dadataAddress.sub_area_with_type,
-                TaxOffice = dadataAddress.tax_office,
-                TaxOfficeLegal = dadataAddress.tax_office_legal,
-                Timezone = dadataAddress.timezone,
-                Metro = dadataAddress.metro?.Select(x => new AddressMetro { Distance = x.distance, Line = x.line, Name = x.name }).ToList(),
-                Divisions = dadataAddress.divisions != null
-                ? new AddressDivisions
-                {
-                    Administrative = dadataAddress.divisions.administrative != null
-                            ? new AddressAdministrative
-                            {
-                                Area = ConvertAddressPartFrom(dadataAddress.divisions.administrative.area),
-                                City = ConvertAddressPartFrom(dadataAddress.divisions.administrative.city),
-                                PlanningStructure = ConvertAddressPartFrom(dadataAddress.divisions.administrative.planning_structure),
-                                Settlement = ConvertAddressPartFrom(dadataAddress.divisions.administrative.settlement),
-                                CityDistrict = ConvertAddressPartFrom(dadataAddress.divisions.administrative.city_district)
-                            }
-                            : null,
-                    Municipal = dadataAddress.divisions.municipal != null
-                            ? new AddressMunicipal
-                            {
-                                Area = ConvertAddressPartFrom(dadataAddress.divisions.municipal.area),
-                                City = ConvertAddressPartFrom(dadataAddress.divisions.municipal.city),
-                                PlanningStructure = ConvertAddressPartFrom(dadataAddress.divisions.municipal.planning_structure),
-                                Settlement = ConvertAddressPartFrom(dadataAddress.divisions.municipal.settlement),
-                                SubArea = ConvertAddressPartFrom(dadataAddress.divisions.municipal.sub_area)
-                            }
-                            : null
-                }
-                : null
+                locations_boost =
+                  [
+                        new Address()
+                        {
+                            kladr_id = "250000010000"
+                        }
+                  ],
+                locations =
+                  [
+                        new Address()
+                        {
+                            city_type_full = "город",
+                            country_iso_code = !string.IsNullOrEmpty(countryIsoCode) ? countryIsoCode : null
+                        }
+                  ],
+                from_bound = new AddressBound("city"),
+                to_bound = new AddressBound("city")
             };
-        }
 
-        private static AddressPart? ConvertAddressPartFrom(global::Dadata.Model.AddressPart from)
-        {
-            if (from == null)
+            var response = await _suggestDadataClient.SuggestAddress(request).ConfigureAwait(false);
+
+            var addressList = response?.suggestions;
+            if (addressList == null)
             {
-                return null;
+                return [];
             }
 
-            return new()
+            return addressList.Where(x => x.data != null).Select(x => x.ToAddressLocation(searchText)).ToList();
+        }
+
+        /// <inheritdoc/>
+        public List<AddressLocation> GetAddressByGeoCode(double latitude, double longitude)
+            => AsyncHelper.RunSync(() => GetAddressByGeoCodeAsync(latitude, longitude));
+
+        /// <inheritdoc/>
+        public async Task<List<AddressLocation>> GetAddressByGeoCodeAsync(double latitude, double longitude)
+        {
+            var response = await _suggestDadataClient.Geolocate(lat: latitude, lon: longitude).ConfigureAwait(false);
+
+            var addressList = response?.suggestions;
+            if (addressList == null)
             {
-                FiasId = Guid.TryParse(from.fias_id, out var id) ? id : null,
-                KladrId = from.kladr_id,
-                Name = from.name,
-                NameWithType = from.name_with_type,
-                Type = from.type,
-                TypeFull = from.type_full
-            };
+                return [];
+            }
+
+            return addressList.Where(x => x.data != null).Select(x => x.ToAddressLocation($"lat: {latitude}, lon: {longitude}")).ToList();
+        }
+
+        /// <inheritdoc/>
+        public AddressLocation GetCityByIp(string ip)
+            => AsyncHelper.RunSync(() => GetCityByIpAsync(ip));
+
+        /// <inheritdoc/>
+        public async Task<AddressLocation> GetCityByIpAsync(string ip)
+        {
+            var response = await _suggestDadataClient.Iplocate(ip).ConfigureAwait(false);
+            var address = response.location;
+
+            return address.ToAddressLocation(ip);
+        }
+
+        /// <inheritdoc/>
+        public List<Party> GetFirm(string searchINN, bool onlyMainFirm = false)
+            => AsyncHelper.RunSync(() => GetFirmAsync(searchINN, onlyMainFirm));
+
+        /// <inheritdoc/>
+        public async Task<List<Party>> GetFirmAsync(string searchINN, bool onlyMainFirm = false)
+        {
+            var request = new FindPartyRequest(searchINN);
+            if (onlyMainFirm)
+            {
+                request.branch_type = global::Dadata.Model.PartyBranchType.MAIN;
+            }
+
+            var response = await _suggestDadataClient.FindParty(request).ConfigureAwait(false);
+
+            var firmList = response?.suggestions;
+            if (firmList == null)
+            {
+                return [];
+            }
+
+            return firmList.Select(x => x.ToParty()).ToList();
         }
     }
 }

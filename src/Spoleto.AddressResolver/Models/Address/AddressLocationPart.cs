@@ -1,6 +1,6 @@
 ﻿namespace Spoleto.AddressResolver
 {
-    public record AddressPart
+    public record AddressLocationPart
     {
         public Guid? FiasId { get; set; }
 
