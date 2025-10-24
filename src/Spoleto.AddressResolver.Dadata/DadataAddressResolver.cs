@@ -45,21 +45,22 @@ namespace Spoleto.AddressResolver.Dadata
         }
 
         /// <inheritdoc/>
-        public List<AddressLocation> SuggestLocations(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU")
+        public List<AddressLocation> SuggestLocations(string searchAddressLocation, int resultCount = 5, string? cityFilter = null, string countryIsoCode = "RU")
             => AsyncHelper.RunSync(() => SuggestLocationsAsync(searchAddressLocation, resultCount, countryIsoCode));
 
         /// <inheritdoc/>
-        public async Task<List<AddressLocation>> SuggestLocationsAsync(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU")
+        public async Task<List<AddressLocation>> SuggestLocationsAsync(string searchAddressLocation, int resultCount = 5, string? cityFilter = null, string countryIsoCode = "RU")
         {
-            var addressList = await GetAddressAsync(searchAddressLocation, countryCode: countryIsoCode).ConfigureAwait(false);
+            var addressList = await GetAddressAsync(searchAddressLocation, resultCount, cityFilter, countryIsoCode).ConfigureAwait(false);
 
             return addressList.Where(x => x.data != null).Select(x => x.ToAddressLocation(searchAddressLocation)).ToList();
         }
 
-        private async Task<IList<Suggestion<Address>>> GetAddressAsync(string searchText, string? boundCity = null, int resultCount = 5, string countryCode = "RU")
+        private async Task<IList<Suggestion<Address>>> GetAddressAsync(string searchText, int resultCount = 5, string? cityFilter = null, string countryCode = "RU")
         {
             SuggestAddressRequest request;
-            if (!string.IsNullOrEmpty(boundCity))
+            if (!string.IsNullOrEmpty(cityFilter)
+                && !string.IsNullOrEmpty(countryCode))
             {
                 request = new SuggestAddressRequest(searchText, resultCount)
                 {
@@ -67,13 +68,29 @@ namespace Spoleto.AddressResolver.Dadata
                     [
                         new Address()
                         {
-                            city = boundCity
+                            city = cityFilter,
+                            country_iso_code = countryCode
                         }
                     ],
                     restrict_value = true
                 };
             }
-            else
+            else if (!string.IsNullOrEmpty(cityFilter))
+            {
+                request = new SuggestAddressRequest(searchText, resultCount)
+                {
+                    locations =
+                    [
+                        new Address()
+                        {
+                            city = cityFilter
+                        }
+                    ],
+                    restrict_value = true
+                };
+
+            }
+            else if (!string.IsNullOrEmpty(countryCode))
             {
                 request = new SuggestAddressRequest(searchText, resultCount)
                 {
@@ -83,23 +100,19 @@ namespace Spoleto.AddressResolver.Dadata
                         {
                             country_iso_code = countryCode
                         }
-                    ],
-
+                    ]
                 };
 
+            }
+            else
+            {
+                request = new SuggestAddressRequest(searchText, resultCount);
             }
 
             var response = await _suggestDadataClient.SuggestAddress(request).ConfigureAwait(false);
 
             return response?.suggestions;
         }
-
-        //private async Task<Suggestion<Address>> GetFullAddressAsync(string addressValue, string countryCode)
-        //{
-        //    var fullAddressList = await GetAddressAsync(addressValue, null, 1, countryCode).ConfigureAwait(false);
-
-        //    return fullAddressList.FirstOrDefault();
-        //}
 
         /// <inheritdoc/>
         public List<AddressLocation> GetCities(string searchText, string countryIsoCode, int resultCount)

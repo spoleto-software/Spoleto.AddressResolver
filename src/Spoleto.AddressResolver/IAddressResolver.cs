@@ -26,18 +26,21 @@
         /// </summary>
         /// <param name="searchAddressLocation">The partial address text to search for.</param>
         /// <param name="resultCount">Maximum number of results to return (default: 5).</param>
+        /// <param name="cityFilter">Optional city name to limit address suggestions within a specific city.</param>
         /// <param name="countryIsoCode">The ISO country code (default: "RU").</param>
         /// <returns>A list of suggested <see cref="AddressLocation"/> instances.</returns>
-        List<AddressLocation> SuggestLocations(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU");
+        List<AddressLocation> SuggestLocations(string searchAddressLocation, int resultCount = 5, string? cityFilter = null, string countryIsoCode = "RU");
+
 
         /// <summary>
         /// Asynchronously returns suggested address matches for a partial input string.
         /// </summary>
         /// <param name="searchAddressLocation">The partial address text to search for.</param>
         /// <param name="resultCount">Maximum number of results to return (default: 5).</param>
+        /// <param name="cityFilter">Optional city name to limit address suggestions within a specific city.</param>
         /// <param name="countryIsoCode">The ISO country code (default: "RU").</param>
         /// <returns>A task returning a list of suggested <see cref="AddressLocation"/> instances.</returns>
-        Task<List<AddressLocation>> SuggestLocationsAsync(string searchAddressLocation, int resultCount = 5, string countryIsoCode = "RU");
+        Task<List<AddressLocation>> SuggestLocationsAsync(string searchAddressLocation, int resultCount = 5, string? cityFilter = null, string countryIsoCode = "RU");
 
         /// <summary>
         /// Finds cities by name or partial match.

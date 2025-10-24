@@ -31,7 +31,7 @@
             var address = "Иваново, Ленина, 5";
 
             // Act
-            var locations = await _businessDataResolver.SuggestLocationsAsync(address);
+            var locations = await _businessDataResolver.SuggestLocationsAsync(address, cityFilter: "Иваново");
 
             // Assert
             Assert.That(locations, Is.Not.Null);
