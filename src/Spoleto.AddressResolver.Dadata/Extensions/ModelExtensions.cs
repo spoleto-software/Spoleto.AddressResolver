@@ -153,7 +153,7 @@ namespace Spoleto.AddressResolver.Dadata
             return new AddressLocationData
             {
                 OriginalAddress = originalLocationAddress,
-                Source= from.source,
+                Source = from.source,
                 Qc = from.qc,
                 PostalCode = from.postal_code,
                 Country = from.country,
@@ -299,7 +299,7 @@ namespace Spoleto.AddressResolver.Dadata
             };
         }
 
-        public static Party ToParty(this Suggestion< global::Dadata.Model.Party> fromSuggestion)
+        public static Party ToParty(this Suggestion<global::Dadata.Model.Party> fromSuggestion)
         {
             if (fromSuggestion?.data == null)
             {
@@ -508,7 +508,7 @@ namespace Spoleto.AddressResolver.Dadata
 
         private static PartyDocumentSmb? ToPartyDocumentSmb(this global::Dadata.Model.PartySmb from)
         {
-            if(from == null)
+            if (from == null)
             {
                 return null;
             }
@@ -620,6 +620,26 @@ namespace Spoleto.AddressResolver.Dadata
                 Source = from.source,
                 Timezone = from.timezone,
                 Type = from.type
+            };
+        }
+
+        public static PersonFullName ToPersonFullName(this Fullname from, string? originalFullName = null)
+        {
+            if (from == null)
+                return null;
+
+            return new PersonFullName
+            {
+                Source = from.source ?? originalFullName,
+                Name = from.name,
+                Patronymic = from.patronymic,
+                Surname = from.surname,
+                Gender = from.gender == "М" ? Gender.Male : from.gender == "Ж" ? Gender.Female : Gender.Unknown,
+                Result = from.result,
+                ResultAblative = from.result_ablative,
+                ResultDative = from.result_dative,
+                ResultGenitive = from.result_genitive,
+                QualityCode = int.TryParse(from.qc, out var qc) ? qc : null,
             };
         }
     }

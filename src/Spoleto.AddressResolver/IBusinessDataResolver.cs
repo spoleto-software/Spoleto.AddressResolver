@@ -1,9 +1,9 @@
 ﻿namespace Spoleto.AddressResolver
 {
     /// <summary>
-    /// Aggregates both address and firm resolution capabilities.
+    /// Aggregates both address, firm and person resolution capabilities.
     /// </summary>
-    public interface IBusinessDataResolver : IAddressResolver, IFirmResolver
+    public interface IBusinessDataResolver : IAddressResolver, IFirmResolver, IPersonResolver
     {
     }
 }

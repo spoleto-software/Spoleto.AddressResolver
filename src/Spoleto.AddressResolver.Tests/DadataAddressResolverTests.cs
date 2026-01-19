@@ -89,5 +89,18 @@
             // Assert
             Assert.That(firm, Is.Not.Null);
         }
+
+        [Test]
+        public async Task ResolvePersonFullNameTest()
+        {
+            // Arrange
+            var fullName = "Срегей владимерович иванов";
+
+            // Act
+            var person = await _businessDataResolver.ResolveFullNameAsync(fullName);
+
+            // Assert
+            Assert.That(person, Is.Not.Null);
+        }
     }
 }

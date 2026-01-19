@@ -207,5 +207,25 @@ namespace Spoleto.AddressResolver.Dadata
 
             return firmList.Select(x => x.ToParty()).ToList();
         }
+
+        /// <inheritdoc/>
+        public PersonFullName ResolveFullName(string originalFullName)
+            => AsyncHelper.RunSync(() => ResolveFullNameAsync(originalFullName));
+
+        /// <inheritdoc/>
+        public async Task<PersonFullName> ResolveFullNameAsync(string originalFullName)
+        {
+            if (String.IsNullOrEmpty(originalFullName))
+                throw new ArgumentNullException(nameof(originalFullName));
+
+            var fullAddress = await _cleanDadataClient.Clean<Fullname>(originalFullName).ConfigureAwait(false);
+
+            if (fullAddress is not Fullname dadataFullName)
+                throw new ArgumentException($"Could not parse the full name for <{originalFullName}>.", nameof(fullAddress));
+
+            var fullName = dadataFullName.ToPersonFullName(originalFullName);
+
+            return fullName;
+        }
     }
 }
